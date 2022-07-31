@@ -8,3 +8,6 @@ LDFLAGS="-X servicetitan-to-dataset/cmd.version=$(VERSION)"
 build:
 	@mkdir -p ${BUILD_DIR}
 	@GOOS=darwin GOARCH=amd64 go build -o ${BUILD_PREFIX}-darwin-amd64 -ldflags=${LDFLAGS}
+
+test:
+	@go test ./... -cover
