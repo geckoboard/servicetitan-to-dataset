@@ -14,7 +14,8 @@ type Client struct {
 	metadata ClientInfo
 	session  *Session
 
-	AuthService AuthService
+	AuthService   AuthService
+	ReportService ReportService
 }
 
 func New(info ClientInfo) (*Client, error) {
@@ -29,6 +30,10 @@ func New(info ClientInfo) (*Client, error) {
 
 	c.AuthService = authService{
 		baseURL: "https://auth.servicetitan.io",
+		client:  c,
+	}
+	c.ReportService = reportService{
+		baseURL: fmt.Sprintf("https://api.servicetitan.io/reporting/v2/tenant/%s", info.TenantID),
 		client:  c,
 	}
 

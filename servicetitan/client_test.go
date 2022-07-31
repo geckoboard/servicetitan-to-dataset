@@ -22,9 +22,13 @@ func TestClient_New(t *testing.T) {
 		assert.Assert(t, c.session == nil)
 		assert.Equal(t, c.metadata, metadata)
 
-		authServ := c.AuthService.(authService)
-		assert.Equal(t, authServ.client, c)
-		assert.Equal(t, authServ.baseURL, "https://auth.servicetitan.io")
+		authSrv := c.AuthService.(authService)
+		assert.Equal(t, authSrv.client, c)
+		assert.Equal(t, authSrv.baseURL, "https://auth.servicetitan.io")
+
+		reportSrv := c.ReportService.(reportService)
+		assert.Equal(t, reportSrv.client, c)
+		assert.Equal(t, reportSrv.baseURL, "https://api.servicetitan.io/reporting/v2/tenant/tenant_123")
 	})
 
 	t.Run("returns error with client options are not valid", func(t *testing.T) {
