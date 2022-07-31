@@ -2,8 +2,10 @@ package servicetitan
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -33,6 +35,19 @@ func New(info ClientInfo) (*Client, error) {
 	return c, nil
 }
 
+func (c *Client) buildURL(baseURL, path string, params url.Values) string {
+	return fmt.Sprintf("%s?%s", baseURL+path, params.Encode())
+}
+
+func (c *Client) buildGETRequest(url string) (*http.Request, error) {
+	r, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
+}
+
 func (c *Client) buildPOSTRequest(url string, body io.Reader) (*http.Request, error) {
 	r, err := http.NewRequest(http.MethodPost, url, body)
 	if err != nil {
@@ -42,7 +57,25 @@ func (c *Client) buildPOSTRequest(url string, body io.Reader) (*http.Request, er
 	return r, nil
 }
 
+func (c *Client) addAuthorization(r *http.Request) (err error) {
+	defer func() {
+		r.Header.Add("Authorization", c.session.Token)
+	}()
+
+	if c.session != nil && !c.session.IsExpired() {
+		return nil
+	}
+
+	c.session, err = c.AuthService.GetToken(r.Context(), c.metadata)
+	return err
+}
+
 func (c *Client) doRequest(req *http.Request, resource interface{}) error {
+	if authstep, _ := req.Context().Value("authStep").(authStep); !authstep {
+		c.addAuthorization(req)
+		req.Header.Add("ST-App-Key", c.metadata.AppID)
+	}
+
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return err
