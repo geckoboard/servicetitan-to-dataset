@@ -14,6 +14,7 @@ type Config struct {
 	ServiceTitan   ServiceTitan `yaml:"servicetitan"`
 	Geckoboard     Geckoboard   `yaml:"geckoboard"`
 	RefreshTimeSec int          `yaml:"refresh_time"`
+	Entries        Entries      `yaml:"entries"`
 }
 
 func LoadFile(path string) (*Config, error) {
