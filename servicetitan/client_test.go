@@ -186,3 +186,10 @@ func (r mockReportService) GetReports(context.Context, Category, *ReportOptions)
 	r.client.doRequest(req, nil)
 	return nil, nil
 }
+
+func (r mockReportService) GetReport(context.Context, string, string) (*Report, error) {
+	url, _ := url.Parse(r.baseURL)
+	req := &http.Request{URL: url, Header: http.Header{}}
+	r.client.doRequest(req, nil)
+	return nil, nil
+}

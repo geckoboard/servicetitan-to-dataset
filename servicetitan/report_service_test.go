@@ -218,6 +218,102 @@ func TestReportService_GetReports(t *testing.T) {
 	})
 }
 
+func TestReportService_GetReport(t *testing.T) {
+	t.Run("fetches specific", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, r.URL.Path, "/report-category/cat-a/reports/rpt-1")
+			assert.Equal(t, r.Header.Get("Authorization"), "tok_1230")
+			assert.Equal(t, r.Header.Get("ST-App-Key"), "app_123")
+
+			resp := map[string]interface{}{
+				"id":          2222222,
+				"name":        "Report A",
+				"description": nil,
+				"modifiedOn":  "2022-10-23T02:28:30.5913254-04:00",
+				"parameters": []map[string]interface{}{
+					{"name": "From", "label": "From", "dataType": "Date", "isArray": false, "isRequired": true, "acceptValues": nil},
+					{"name": "To", "label": "To", "dataType": "Date", "isArray": false, "isRequired": true, "acceptValues": nil},
+					{"name": "IncludeInactive", "label": "Include Inactive Technicians", "dataType": "Boolean", "isArray": false, "isRequired": false, "acceptValues": nil},
+				},
+				"fields": []map[string]interface{}{
+					{"name": "Name", "label": "Name", "dataType": "String"},
+					{"name": "CompletedJobs", "label": "Completed Jobs", "dataType": "Number"},
+					{"name": "TotalPaidTime", "label": "Total Paid Time", "dataType": "Number"},
+				},
+			}
+
+			json.NewEncoder(w).Encode(resp)
+		})
+
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		got, err := srv.GetReport(context.Background(), "cat-a", "rpt-1")
+		assert.NilError(t, err)
+
+		assert.DeepEqual(t, got, &Report{
+			ID:   2222222,
+			Name: "Report A",
+			Fields: []ReportField{
+				{Name: "Name", Label: "Name", Type: "String"},
+				{Name: "CompletedJobs", Label: "Completed Jobs", Type: "Number"},
+				{Name: "TotalPaidTime", Label: "Total Paid Time", Type: "Number"},
+			},
+			Parameters: []ReportParameter{
+				{Name: "From", Label: "From", DataType: "Date", IsRequired: true},
+				{Name: "To", Label: "To", DataType: "Date", IsRequired: true},
+				{
+					Name:     "IncludeInactive",
+					Label:    "Include Inactive Technicians",
+					DataType: "Boolean",
+				},
+			},
+		})
+	})
+
+	t.Run("returns error when request fails", func(t *testing.T) {
+		srv := reportService{baseURL: "", client: buildClient()}
+		_, err := srv.GetReport(context.Background(), "cat-a", "rpt-1")
+		assert.ErrorContains(t, err, "unsupported protocol scheme")
+	})
+
+	t.Run("returns error when request building fail", func(t *testing.T) {
+		srv := reportService{baseURL: string([]byte{0x7f}), client: buildClient()}
+		_, err := srv.GetReport(context.Background(), "cat-a", "rpt-1")
+		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
+	})
+
+	t.Run("returns error when non 200 response code", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusUnauthorized)
+			io.WriteString(w, "error invalid token")
+		})
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		_, err := srv.GetReport(context.Background(), "cat-b", "rpt-1")
+
+		want := &Error{
+			StatusCode:  http.StatusUnauthorized,
+			RequestPath: "/report-category/cat-b/reports/rpt-1",
+			Message:     "error invalid token",
+		}
+		assert.DeepEqual(t, err, want)
+	})
+
+	t.Run("returns error when it fails parse json body", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			io.WriteString(w, "invalid json")
+		})
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+
+		_, err := srv.GetReport(context.Background(), "cat-a", "rpt-1")
+		assert.ErrorType(t, err, &json.SyntaxError{})
+	})
+}
+
 func buildClient() *Client {
 	return &Client{
 		client: http.DefaultClient,
