@@ -1,14 +1,19 @@
 package servicetitan
 
 type PaginationOptions struct {
-	PerPage int
-	Page    int
+	PageSize int
+	Page     int
 }
 
-type ReportOptions struct {
-	CategoryID string
-	ReportID   string
-	Parameters map[string]interface{}
+type ReportDataRequest struct {
+	CategoryID string               `json:"-"`
+	ReportID   string               `json:"-"`
+	Parameters DataRequestParamters `json:"parameters"`
+}
+
+type DataRequestParamters []struct {
+	Name  string
+	Value string
 }
 
 type Category struct {

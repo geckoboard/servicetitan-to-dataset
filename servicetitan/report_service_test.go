@@ -314,6 +314,198 @@ func TestReportService_GetReport(t *testing.T) {
 	})
 }
 
+func TestReportService_GetReportData(t *testing.T) {
+	t.Run("fetches the report data without parameters", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, r.URL.Path, "/report-category/cat-a/reports/rpt-1/data")
+			assert.Equal(t, r.Header.Get("Authorization"), "tok_1230")
+			assert.Equal(t, r.Header.Get("ST-App-Key"), "app_123")
+
+			reqBody := map[string]interface{}{}
+			assert.NilError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+			assert.DeepEqual(t, reqBody, map[string]interface{}{"parameters": nil})
+
+			resp := map[string]interface{}{
+				"fields": []map[string]interface{}{
+					{"name": "Name", "label": "Name"},
+					{"name": "CompletedJobs", "label": "Completed Jobs"},
+				},
+				"data": [][]interface{}{
+					{[]interface{}{"John Smith", 5}},
+					{[]interface{}{"Jane Doe", 9}},
+				},
+				"page":       1,
+				"pageSize":   50,
+				"hasMore":    false,
+				"totalCount": nil,
+			}
+
+			json.NewEncoder(w).Encode(resp)
+		})
+
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		got, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-a",
+				ReportID:   "rpt-1",
+			},
+			nil,
+		)
+		assert.NilError(t, err)
+
+		assert.DeepEqual(t, got, &ReportData{
+			Data: []interface{}{
+				[]interface{}{[]interface{}{string("John Smith"), float64(5)}},
+				[]interface{}{[]interface{}{string("Jane Doe"), float64(9)}},
+			},
+			Fields: []ReportField{
+				{Name: "Name", Label: "Name"},
+				{Name: "CompletedJobs", Label: "Completed Jobs"},
+			},
+			HasMore:  false,
+			Page:     1,
+			PageSize: 50,
+		})
+	})
+
+	t.Run("fetches the report data with parameters", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, r.URL.Path, "/report-category/cat-a/reports/rpt-1/data")
+			assert.Equal(t, r.Header.Get("Authorization"), "tok_1230")
+			assert.Equal(t, r.Header.Get("ST-App-Key"), "app_123")
+
+			reqBody := map[string]interface{}{}
+			assert.NilError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+			assert.DeepEqual(t, reqBody, map[string]interface{}{
+				"parameters": []interface{}{
+					map[string]interface{}{"Name": string("From"), "Value": string("2022-10-13")},
+					map[string]interface{}{"Name": string("To"), "Value": string("2022-10-14")},
+				},
+			})
+
+			resp := map[string]interface{}{
+				"fields": []map[string]interface{}{
+					{"name": "Name", "label": "Name"},
+					{"name": "CompletedJobs", "label": "Completed Jobs"},
+				},
+				"data": [][]interface{}{
+					{[]interface{}{"John Smith", 5}},
+					{[]interface{}{"Jane Doe", 9}},
+				},
+				"page":       1,
+				"pageSize":   50,
+				"hasMore":    false,
+				"totalCount": nil,
+			}
+
+			json.NewEncoder(w).Encode(resp)
+		})
+
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		got, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-a",
+				ReportID:   "rpt-1",
+				Parameters: DataRequestParamters{
+					{
+						Name:  "From",
+						Value: "2022-10-13",
+					},
+					{
+						Name:  "To",
+						Value: "2022-10-14",
+					},
+				},
+			},
+			nil,
+		)
+
+		assert.NilError(t, err)
+		assert.DeepEqual(t, got, &ReportData{
+			Data: []interface{}{
+				[]interface{}{[]interface{}{string("John Smith"), float64(5)}},
+				[]interface{}{[]interface{}{string("Jane Doe"), float64(9)}},
+			},
+			Fields: []ReportField{
+				{Name: "Name", Label: "Name"},
+				{Name: "CompletedJobs", Label: "Completed Jobs"},
+			},
+			HasMore:  false,
+			Page:     1,
+			PageSize: 50,
+		})
+	})
+
+	t.Run("returns error when request fails", func(t *testing.T) {
+		srv := reportService{baseURL: "", client: buildClient()}
+		_, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-a",
+				ReportID:   "rpt-1",
+			},
+			nil,
+		)
+		assert.ErrorContains(t, err, "unsupported protocol scheme")
+	})
+
+	t.Run("returns error when request building fail", func(t *testing.T) {
+		srv := reportService{baseURL: string([]byte{0x7f}), client: buildClient()}
+		_, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-a",
+				ReportID:   "rpt-1",
+			},
+			nil,
+		)
+		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
+	})
+
+	t.Run("returns error when non 200 response code", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusUnauthorized)
+			io.WriteString(w, "error invalid token")
+		})
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		_, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-b",
+				ReportID:   "rpt-1",
+			},
+			nil,
+		)
+
+		want := &Error{
+			StatusCode:  http.StatusUnauthorized,
+			RequestPath: "/report-category/cat-b/reports/rpt-1/data",
+			Message:     "error invalid token",
+		}
+		assert.DeepEqual(t, err, want)
+	})
+
+	t.Run("returns error when it fails parse json body", func(t *testing.T) {
+		server := buildMockServer(func(w http.ResponseWriter, r *http.Request) {
+			io.WriteString(w, "invalid json")
+		})
+		defer server.Close()
+
+		srv := reportService{baseURL: server.URL, client: buildClient()}
+		_, err := srv.GetReportData(context.Background(),
+			ReportDataRequest{
+				CategoryID: "cat-b",
+				ReportID:   "rpt-1",
+			},
+			nil,
+		)
+		assert.ErrorType(t, err, &json.SyntaxError{})
+	})
+}
+
 func buildClient() *Client {
 	return &Client{
 		client: http.DefaultClient,
