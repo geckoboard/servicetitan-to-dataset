@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"servicetitan-to-dataset/config"
 	"testing"
 	"time"
 
@@ -14,13 +15,13 @@ import (
 
 func TestClient_New(t *testing.T) {
 	t.Run("returns new client", func(t *testing.T) {
-		metadata := validClientOptions()
-		c, err := New(metadata)
+		cfg := config.ServiceTitan{TenantID: "tenant_123"}
+		c, err := New(cfg)
 		assert.NilError(t, err)
 
 		assert.Assert(t, c.client != nil)
 		assert.Assert(t, c.session == nil)
-		assert.Equal(t, c.metadata, metadata)
+		assert.Equal(t, c.config, cfg)
 
 		authSrv := c.AuthService.(authService)
 		assert.Equal(t, authSrv.client, c)
@@ -29,11 +30,6 @@ func TestClient_New(t *testing.T) {
 		reportSrv := c.ReportService.(reportService)
 		assert.Equal(t, reportSrv.client, c)
 		assert.Equal(t, reportSrv.baseURL, "https://api.servicetitan.io/reporting/v2/tenant/tenant_123")
-	})
-
-	t.Run("returns error with client options are not valid", func(t *testing.T) {
-		_, err := New(ClientInfo{})
-		assert.ErrorIs(t, err, errMissingAppID)
 	})
 }
 
@@ -159,7 +155,7 @@ type mockAuthService struct {
 	calls      int
 }
 
-func (m *mockAuthService) GetToken(context.Context, ClientInfo) (*Session, error) {
+func (m *mockAuthService) GetToken(context.Context, config.ServiceTitan) (*Session, error) {
 	m.calls++
 
 	if m.getTokenFn != nil {

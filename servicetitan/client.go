@@ -1,31 +1,30 @@
 package servicetitan
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"servicetitan-to-dataset/config"
 	"time"
 )
 
 type Client struct {
-	client   *http.Client
-	metadata ClientInfo
-	session  *Session
+	client  *http.Client
+	config  config.ServiceTitan
+	session *Session
 
 	AuthService   AuthService
 	ReportService ReportService
 }
 
-func New(info ClientInfo) (*Client, error) {
-	if err := info.Validate(); err != nil {
-		return nil, err
-	}
-
+func New(cfg config.ServiceTitan) (*Client, error) {
 	c := &Client{
-		client:   &http.Client{Timeout: 30 * time.Second},
-		metadata: info,
+		client: &http.Client{Timeout: 30 * time.Second},
+		config: cfg,
 	}
 
 	c.AuthService = authService{
@@ -33,7 +32,7 @@ func New(info ClientInfo) (*Client, error) {
 		client:  c,
 	}
 	c.ReportService = reportService{
-		baseURL: fmt.Sprintf("https://api.servicetitan.io/reporting/v2/tenant/%s", info.TenantID),
+		baseURL: fmt.Sprintf("https://api.servicetitan.io/reporting/v2/tenant/%s", cfg.TenantID),
 		client:  c,
 	}
 
@@ -64,21 +63,23 @@ func (c *Client) buildPOSTRequest(url string, body io.Reader) (*http.Request, er
 
 func (c *Client) addAuthorization(r *http.Request) (err error) {
 	defer func() {
-		r.Header.Add("Authorization", c.session.Token)
+		if err == nil {
+			r.Header.Add("Authorization", c.session.Token)
+		}
 	}()
 
 	if c.session != nil && !c.session.IsExpired() {
 		return nil
 	}
 
-	c.session, err = c.AuthService.GetToken(r.Context(), c.metadata)
+	c.session, err = c.AuthService.GetToken(r.Context(), c.config)
 	return err
 }
 
 func (c *Client) doRequest(req *http.Request, resource interface{}) error {
 	if authstep, _ := req.Context().Value("authStep").(authStep); !authstep {
 		c.addAuthorization(req)
-		req.Header.Add("ST-App-Key", c.metadata.AppID)
+		req.Header.Add("ST-App-Key", c.config.AppID)
 	}
 
 	resp, err := c.client.Do(req)

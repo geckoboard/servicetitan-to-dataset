@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"servicetitan-to-dataset/config"
 	"testing"
 	"time"
 
@@ -14,8 +15,8 @@ import (
 )
 
 var (
-	validClientOptions = func() ClientInfo {
-		return ClientInfo{
+	validClientOptions = func() config.ServiceTitan {
+		return config.ServiceTitan{
 			AppID:        "app_123",
 			TenantID:     "tenant_123",
 			ClientID:     "client_123",

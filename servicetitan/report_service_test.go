@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"servicetitan-to-dataset/config"
 	"testing"
 	"time"
 
@@ -224,7 +225,7 @@ func buildClient() *Client {
 			Token:     "tok_1230",
 			ExpiresAt: time.Now().UTC().Add(5 * time.Minute),
 		},
-		metadata: ClientInfo{
+		config: config.ServiceTitan{
 			AppID: "app_123",
 		},
 	}

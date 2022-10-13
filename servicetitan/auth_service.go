@@ -3,6 +3,7 @@ package servicetitan
 import (
 	"context"
 	"net/url"
+	"servicetitan-to-dataset/config"
 	"strings"
 	"time"
 )
@@ -10,7 +11,7 @@ import (
 type authStep bool
 
 type AuthService interface {
-	GetToken(context.Context, ClientInfo) (*Session, error)
+	GetToken(context.Context, config.ServiceTitan) (*Session, error)
 }
 
 type authService struct {
@@ -24,11 +25,11 @@ type Session struct {
 	ExpiresAt time.Time `json:"-"`
 }
 
-func (a authService) GetToken(ctx context.Context, metadata ClientInfo) (*Session, error) {
+func (a authService) GetToken(ctx context.Context, cfg config.ServiceTitan) (*Session, error) {
 	q := url.Values{}
 	q.Add("grant_type", "client_credentials")
-	q.Add("client_id", metadata.ClientID)
-	q.Add("client_secret", metadata.ClientSecret)
+	q.Add("client_id", cfg.ClientID)
+	q.Add("client_secret", cfg.ClientSecret)
 
 	req, err := a.client.buildPOSTRequest(a.baseURL+"/connect/token", strings.NewReader(q.Encode()))
 	if err != nil {
