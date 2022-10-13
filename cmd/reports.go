@@ -13,6 +13,7 @@ func ReportsCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(report.ListCommand())
+	cmd.AddCommand(report.ParametersCommand())
 
 	return cmd
 }
