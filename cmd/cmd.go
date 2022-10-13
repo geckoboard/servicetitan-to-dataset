@@ -9,6 +9,8 @@ import (
 var version = ""
 
 func Setup() *cobra.Command {
+	var configPath string
+
 	root := &cobra.Command{
 		Use:   "servicetitan-to-dataset",
 		Short: `Push your service titan reports to your Geckoboard dataset`,
@@ -27,6 +29,8 @@ func Setup() *cobra.Command {
 			root.Execute()
 		}
 	}
+
+	root.PersistentFlags().StringVar(&configPath, "config", "config.yml", "Path to the config file")
 
 	root.AddCommand(VersionCommand())
 
