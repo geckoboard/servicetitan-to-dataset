@@ -93,7 +93,7 @@ func fetchAndPrintReports(cfg config.ServiceTitan, filterTerm string) error {
 }
 
 func fetchReportsForCategory(c *servicetitan.Client, category servicetitan.Category) ([]servicetitan.Report, error) {
-	options := &servicetitan.ReportOptions{
+	options := &servicetitan.PaginationOptions{
 		Page:     1,
 		PageSize: 200,
 	}

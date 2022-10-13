@@ -56,7 +56,7 @@ func TestReportService_GetCategories(t *testing.T) {
 		defer server.Close()
 
 		srv := reportService{baseURL: server.URL, client: buildClient()}
-		got, err := srv.GetCategories(context.Background(), &ReportOptions{
+		got, err := srv.GetCategories(context.Background(), &PaginationOptions{
 			Page:     4,
 			PageSize: 100,
 		})
@@ -159,7 +159,7 @@ func TestReportService_GetReports(t *testing.T) {
 		defer server.Close()
 
 		srv := reportService{baseURL: server.URL, client: buildClient()}
-		got, err := srv.GetReports(context.Background(), Category{ID: "cat-a"}, &ReportOptions{
+		got, err := srv.GetReports(context.Background(), Category{ID: "cat-a"}, &PaginationOptions{
 			Page:     5,
 			PageSize: 200,
 		})

@@ -173,14 +173,14 @@ type mockReportService struct {
 	baseURL string
 }
 
-func (r mockReportService) GetCategories(context.Context, *ReportOptions) (*CategoryList, error) {
+func (r mockReportService) GetCategories(context.Context, *PaginationOptions) (*CategoryList, error) {
 	url, _ := url.Parse(r.baseURL)
 	req := &http.Request{URL: url, Header: http.Header{}}
 	r.client.doRequest(req, nil)
 	return nil, nil
 }
 
-func (r mockReportService) GetReports(context.Context, Category, *ReportOptions) (*ReportList, error) {
+func (r mockReportService) GetReports(context.Context, Category, *PaginationOptions) (*ReportList, error) {
 	url, _ := url.Parse(r.baseURL)
 	req := &http.Request{URL: url, Header: http.Header{}}
 	r.client.doRequest(req, nil)
