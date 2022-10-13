@@ -62,7 +62,7 @@ func buildExampleConfig(filename string) error {
 
 	cfg := config.Config{
 		ServiceTitan: config.ServiceTitan{
-			AppID:        "your-app-id",
+			AppID:        "{{ENV_APPID}}",
 			TenantID:     "your-tenant-id",
 			ClientID:     "your-client-id",
 			ClientSecret: "your-client-secret",
@@ -71,6 +71,38 @@ func buildExampleConfig(filename string) error {
 			APIKey: "apikey1234",
 		},
 		RefreshTimeSec: 60,
+		Entries: config.Entries{
+			{
+				Report: config.Report{
+					ID:         "123",
+					CategoryID: "category-a",
+					Parameters: []config.Parameter{
+						{
+							Name:  "From",
+							Value: "2021-10-13",
+						},
+						{
+							Name:  "To",
+							Value: "2021-10-14",
+						},
+					},
+				},
+				Dataset: config.Dataset{
+					Name: "my-dataset-name",
+					Type: "replace",
+				},
+			},
+			{
+				Report: config.Report{
+					ID:         "345",
+					CategoryID: "category-b",
+				},
+				Dataset: config.Dataset{
+					Name: "revenue-income",
+					Type: "append",
+				},
+			},
+		},
 	}
 
 	f, err := os.Create(filename)
