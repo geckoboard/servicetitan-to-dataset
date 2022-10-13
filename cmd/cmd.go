@@ -33,6 +33,8 @@ func Setup() *cobra.Command {
 	root.PersistentFlags().StringVar(&configPath, "config", "config.yml", "Path to the config file")
 
 	root.AddCommand(VersionCommand())
+	root.AddCommand(ConfigCommand())
+	root.AddCommand(ReportsCommand())
 
 	return root
 }
