@@ -107,6 +107,55 @@ func TestConfig_Validate(t *testing.T) {
 		assert.ErrorContains(t, in.Validate(), "Config section \"geckoboard\" errors:\n - missing api_key")
 	})
 
+	t.Run("returns error at least one entry required", func(t *testing.T) {
+		in := Config{
+			ServiceTitan: ServiceTitan{
+				AppID:        "app",
+				TenantID:     "ten",
+				ClientID:     "id",
+				ClientSecret: "secret",
+			},
+			Geckoboard: Geckoboard{
+				APIKey: "api123",
+			},
+		}
+
+		assert.ErrorContains(t, in.Validate(), "Config section \"entries\" errors:\n - at least one entry is required")
+	})
+
+	t.Run("returns error when on of the entries is invalid", func(t *testing.T) {
+		in := Config{
+			ServiceTitan: ServiceTitan{
+				AppID:        "app",
+				TenantID:     "ten",
+				ClientID:     "id",
+				ClientSecret: "secret",
+			},
+			Geckoboard: Geckoboard{
+				APIKey: "api123",
+			},
+			Entries: Entries{
+				{
+					Dataset: Dataset{
+						RequiredFields: []string{"Name"},
+					},
+					Report: Report{
+						ID:         "rpt-1",
+						CategoryID: "cat-1",
+					},
+				},
+				{
+					Dataset: Dataset{},
+					Report: Report{
+						ID: "rpt-1",
+					},
+				},
+			},
+		}
+
+		assert.ErrorContains(t, in.Validate(), "Config section \"entries[2]\" errors:\n - at least one dataset required_field is required, please use the report field name as the identifier\n - category_id is required")
+	})
+
 	t.Run("returns nil", func(t *testing.T) {
 		in := Config{
 			ServiceTitan: ServiceTitan{
@@ -117,6 +166,17 @@ func TestConfig_Validate(t *testing.T) {
 			},
 			Geckoboard: Geckoboard{
 				APIKey: "api123",
+			},
+			Entries: Entries{
+				{
+					Dataset: Dataset{
+						RequiredFields: []string{"Name"},
+					},
+					Report: Report{
+						ID:         "rpt-1",
+						CategoryID: "cat-1",
+					},
+				},
 			},
 		}
 

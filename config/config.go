@@ -48,6 +48,10 @@ func (c *Config) Validate() error {
 		return err
 	}
 
+	if err := c.Entries.Validate(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
