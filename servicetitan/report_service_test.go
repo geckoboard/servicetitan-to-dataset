@@ -380,8 +380,8 @@ func TestReportService_GetReportData(t *testing.T) {
 			assert.NilError(t, json.NewDecoder(r.Body).Decode(&reqBody))
 			assert.DeepEqual(t, reqBody, map[string]interface{}{
 				"parameters": []interface{}{
-					map[string]interface{}{"Name": string("From"), "Value": string("2022-10-13")},
-					map[string]interface{}{"Name": string("To"), "Value": string("2022-10-14")},
+					map[string]interface{}{"name": string("From"), "value": string("2022-10-13")},
+					map[string]interface{}{"name": string("To"), "value": string("2022-10-14")},
 				},
 			})
 
@@ -410,7 +410,7 @@ func TestReportService_GetReportData(t *testing.T) {
 			ReportDataRequest{
 				CategoryID: "cat-a",
 				ReportID:   "rpt-1",
-				Parameters: DataRequestParamters{
+				Parameters: []DataRequestParamters{
 					{
 						Name:  "From",
 						Value: "2022-10-13",

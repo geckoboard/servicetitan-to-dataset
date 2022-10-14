@@ -6,14 +6,14 @@ type PaginationOptions struct {
 }
 
 type ReportDataRequest struct {
-	CategoryID string               `json:"-"`
-	ReportID   string               `json:"-"`
-	Parameters DataRequestParamters `json:"parameters"`
+	CategoryID string                 `json:"-"`
+	ReportID   string                 `json:"-"`
+	Parameters []DataRequestParamters `json:"parameters"`
 }
 
-type DataRequestParamters []struct {
-	Name  string
-	Value string
+type DataRequestParamters struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 type Category struct {
