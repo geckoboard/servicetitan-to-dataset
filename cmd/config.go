@@ -88,8 +88,7 @@ func buildExampleConfig(filename string) error {
 					},
 				},
 				Dataset: config.Dataset{
-					Name: "my-dataset-name",
-					Type: "replace",
+					RequiredFields: []string{"Name"},
 				},
 			},
 			{
@@ -98,8 +97,9 @@ func buildExampleConfig(filename string) error {
 					CategoryID: "category-b",
 				},
 				Dataset: config.Dataset{
-					Name: "revenue-income",
-					Type: "append",
+					Name:           "revenue-income",
+					Type:           "append",
+					RequiredFields: []string{"Name"},
 				},
 			},
 		},
