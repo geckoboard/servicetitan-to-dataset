@@ -35,6 +35,7 @@ func Setup() *cobra.Command {
 	root.AddCommand(VersionCommand())
 	root.AddCommand(ConfigCommand())
 	root.AddCommand(ReportsCommand())
+	root.AddCommand(PushDataCommand())
 
 	return root
 }
