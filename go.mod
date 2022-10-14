@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/google/go-cmp v0.5.5
-	github.com/jnormington/geckoboard v0.0.0-20221013185409-b6461ba185ab
+	github.com/jnormington/geckoboard v0.0.0-20221014091532-98ee2f4195b1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.6.0
 	gopkg.in/yaml.v3 v3.0.1
