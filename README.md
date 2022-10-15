@@ -31,6 +31,10 @@ Open up a terminal (on linux/max) or a command prompt (on windows), and run your
 This will generate an example config and create a file called config.yml by default.
 Open this file and replace the servicetitan values with your specific values.
 
+#### Geckoboard API
+
+Hopefully this is obvious, but this is where your Geckoboard API key goes. You can find yours [here](https://app.geckoboard.com/account/details).
+
 
 ### 4. List categories and possible reports
 
@@ -44,10 +48,10 @@ Run the following command
 ./servicetitan-to-dataset reports list
 ```
 
-If the config servicetitan values was setup correctly you should see something
+If the servicetitan config values was setup correctly you should see something
 similar to the below, depending on the number categories you have you might see more output.
 
-```sh
+```
 2022/10/14 16:10:27 Fetching categories...
 2022/10/14 16:10:41 Fetching reports for category Accounting...
 2022/10/14 16:10:41 Fetching reports for category Other...
@@ -133,7 +137,9 @@ entries:
         - Technician Name
 ```
 
-### Custom dataset name
+## Other
+
+#### Custom dataset name
 
 By default the default name is automatically implied from the report name and converted to ensure it is safe.
 
@@ -153,7 +159,45 @@ entries:
 Please note that in some cases the dataset name you input will be converted based on the rules of what a valid dataset name is
 but all letters and numbers are valid values
 
-### refresh_time
+#### Dataset type
+
+By default when pushing data to Geckoboard - we query just the first page of data and always replace the dataset contents
+with the latest report data returned from ServiceTitan.
+
+In some very rare cases - it maybe preferred to have the dataset append data, however for this to work you must have a
+required and unique column or multiple columns..
+
+For instance if you report contains a Date, Name and Number fields, the required fields would be Date and Name as these are the unique constraints.
+By doing this we can build up data overtime if the query only returns data for "today"
+
+To support appending data - you need to specify the dataset type as "append"
+
+```yml
+dataset:
+  name: ...
+  type: append
+  required_fields:
+    - Date
+    - Name
+```
+
+#### Dynamic date parameters
+
+If you're report requires a date parameter, you can hardcode a specific date such as 2022-10-19 however do so would require
+the configuration to be updated every day.
+
+To support a dynamic date value - you can use NOW - which for a date parameter will translate to the current date.
+Also for cases that require a range e.g a from and to range. There is also a NOW-2 or NOW+2 which minus or plus n days
+
+```yml
+  parameters:
+    - name: From
+      value: "NOW-1"
+    - name: To
+      value: "NOW"
+```
+
+#### refresh_time
 
 Once started, it can query ServiceTitan periodically and push the results to Geckoboard. Use this field to specify the time, in seconds, between refreshes.
 
@@ -175,6 +219,3 @@ geckoboard:
   api_key: "{{GB_APIKEY}}"
 ```
 
-### Geckoboard API
-
-Hopefully this is obvious, but this is where your Geckoboard API key goes. You can find yours [here](https://app.geckoboard.com/account/details).
