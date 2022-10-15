@@ -61,11 +61,16 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 	fmt.Println("Report id: ", report.ID)
 	fmt.Println("Report name: ", report.Name)
 
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?"})
+	paramTable := tablewriter.NewWriter(os.Stdout)
+	paramTable.SetRowLine(true)
+	paramTable.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?"})
+
+	fieldTable := tablewriter.NewWriter(os.Stdout)
+	fieldTable.SetRowLine(true)
+	fieldTable.SetHeader([]string{"Field Name", "Label", "Type"})
 
 	for _, param := range report.Parameters {
-		table.Append([]string{
+		paramTable.Append([]string{
 			param.Name,
 			param.Label,
 			param.DataType,
@@ -74,8 +79,17 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 		})
 	}
 
-	table.SetRowLine(true)
-	table.Render()
+	for _, field := range report.Fields {
+		fieldTable.Append([]string{field.Label, field.Name, field.Type})
+	}
+
+	fmt.Println("")
+	fmt.Println("Report fields:")
+	fieldTable.Render()
+
+	fmt.Println("")
+	fmt.Println("Report parameters:")
+	paramTable.Render()
 
 	return nil
 }
