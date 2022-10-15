@@ -12,13 +12,20 @@ Push ServiceTitan reports into Geckoboard datasets
 
 #### Make it executable (macOS / Linux)
 
-On macOS and Linux you'll need to open a terminal and run `chmod u+x path/to/file` (replacing `path/to/file` with the actual path to your downloaded app) in order to make the app executable.
+On macOS and Linux you'll need to open a terminal and run `chmod u+x path/to/file` (replacing `path/to/file` with the actual path to your downloaded app) in order to make the app
+ executable.
 
 ### 2. Create an oauth app
 
  - Create a service titan app in the [developer console here](https://developer.servicetitan.io/custom/my-apps/)
  - Then add the new app to your account under [Settings > integrations here](https://go.servicetitan.com/#/Settings/Api-Apps) and grant it access to reports.
  - Copy the values for later
+ 
+From the developer console the **application key** field in the image below (ak1...) maps to the servicetitan `app_id` in the config.
+<img width="650" alt="developer_oauth_app" src="https://user-images.githubusercontent.com/4930249/196000283-1630f560-20a9-4ff7-90bf-80fe51cb4ca5.png">
+
+From the integrations page under the settings section those fields map nicely to the config.
+<img width="650" alt="integrations_api_app_admin" src="https://user-images.githubusercontent.com/4930249/196000369-2dc791c0-6363-456a-8147-bfcb337b4e11.png">
 
 ### 3. Generate a config and update the values
 
