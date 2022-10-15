@@ -197,7 +197,7 @@ Also for cases that require a range e.g a from and to range. There is also a NOW
       value: "NOW"
 ```
 
-#### refresh_time
+#### Refresh time
 
 Once started, it can query ServiceTitan periodically and push the results to Geckoboard. Use this field to specify the time, in seconds, between refreshes.
 
@@ -208,6 +208,9 @@ This means that if you have;
 
 If you do not wish for it to run on a schedule, omit this option from your config and it will run only once after it has completed all entries.
 
+```yml
+refresh_time: 60
+```
 
 #### Environment variables
 
