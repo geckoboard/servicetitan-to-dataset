@@ -12,8 +12,7 @@ Push ServiceTitan reports into Geckoboard datasets
 
 #### Make it executable (macOS / Linux)
 
-On macOS and Linux you'll need to open a terminal and run `chmod u+x path/to/file` (replacing `path/to/file` with the actual path to your downloaded app) in order to make the app
- executable.
+On macOS and Linux you'll need to open a terminal and run `chmod u+x path/to/file` (replacing `path/to/file` with the actual path to your downloaded app) in order to make the app executable.
 
 ### 2. Create an oauth app
 
