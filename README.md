@@ -6,9 +6,9 @@ Push ServiceTitan reports into Geckoboard datasets
 
 ### 1. Download the app
 
-* macOS [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-darwin-amd64) / [arm64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-darwin-arm64)
-* Linux [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-linux-386) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-linux-amd64)
-* Windows [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-windows-386.exe) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.0.1/servicetitan-to-dataset-windows-amd64.exe)
+* macOS [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-darwin-amd64) / [arm64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-darwin-arm64)
+* Linux [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-386) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-amd64)
+* Windows [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-386.exe) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-amd64.exe)
 
 #### Make it executable (macOS / Linux)
 
@@ -19,7 +19,7 @@ On macOS and Linux you'll need to open a terminal and run `chmod u+x path/to/fil
  - Create a service titan app in the [developer console here](https://developer.servicetitan.io/custom/my-apps/)
  - Then add the new app to your account under [Settings > integrations here](https://go.servicetitan.com/#/Settings/Api-Apps) and grant it access to reports.
  - Copy the values for later
- 
+
 From the developer console the **application key** field in the image below (ak1...) maps to the servicetitan `app_id` in the config.
 <img width="650" alt="developer_oauth_app" src="https://user-images.githubusercontent.com/4930249/196000283-1630f560-20a9-4ff7-90bf-80fe51cb4ca5.png">
 
