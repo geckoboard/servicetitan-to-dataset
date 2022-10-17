@@ -7,8 +7,8 @@ Push ServiceTitan reports into Geckoboard datasets
 ### 1. Download the app
 
 * macOS [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-darwin-amd64) / [arm64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-darwin-arm64)
-* Linux [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-386) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-amd64)
-* Windows [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-386.exe) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-amd64.exe)
+* Linux [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-x86) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-linux-amd64)
+* Windows [x86](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-x86.exe) / [x64](https://github.com/geckoboard/servicetitan-to-dataset/releases/download/v0.1.0/servicetitan-to-dataset-windows-amd64.exe)
 
 #### Make it executable (macOS / Linux)
 
