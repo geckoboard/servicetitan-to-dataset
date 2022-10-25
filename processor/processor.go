@@ -16,7 +16,10 @@ import (
 
 const dateFormat = "2006-01-02"
 
-var nowSubRegexp = regexp.MustCompile(`NOW(\-|\+)(\d+)`)
+var (
+	nowSubRegexp          = regexp.MustCompile(`NOW(\-|\+)(\d+)`)
+	currentMonthDayRegexp = regexp.MustCompile(`CURRENT_MONTH_DAY(\d+)`)
+)
 
 type ReportProcessor struct {
 	maxDatasetRecords int
