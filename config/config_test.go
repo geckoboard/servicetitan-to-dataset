@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 )
 
@@ -48,7 +49,7 @@ func TestConfig_ExtractValuesFromEnv(t *testing.T) {
 		}
 
 		in.ExtractValuesFromEnv()
-		assert.DeepEqual(t, in, want)
+		assert.DeepEqual(t, in, want, cmpopts.IgnoreUnexported(Config{}))
 	})
 
 	t.Run("leaves un-interpolated values as is", func(t *testing.T) {
@@ -77,7 +78,7 @@ func TestConfig_ExtractValuesFromEnv(t *testing.T) {
 		}
 
 		in.ExtractValuesFromEnv()
-		assert.DeepEqual(t, in, want)
+		assert.DeepEqual(t, in, want, cmpopts.IgnoreUnexported(Config{}))
 	})
 }
 
@@ -92,6 +93,11 @@ func TestConfig_Validate(t *testing.T) {
 		}
 
 		assert.ErrorContains(t, in.Validate(), "Config section \"servicetitan\" errors:\n - missing client_id")
+	})
+
+	t.Run("returns error when invalid time location", func(t *testing.T) {
+		in := Config{TimeLocation: "fake"}
+		assert.ErrorContains(t, in.Validate(), "Config time_location error: unknown time zone fake")
 	})
 
 	t.Run("returns errors for geckoboard", func(t *testing.T) {
@@ -156,8 +162,36 @@ func TestConfig_Validate(t *testing.T) {
 		assert.ErrorContains(t, in.Validate(), "Config section \"entries[2]\" errors:\n - at least one dataset required_field is required, please use the report field name as the identifier\n - category_id is required")
 	})
 
-	t.Run("returns nil", func(t *testing.T) {
+	t.Run("allows empty time location with valid config", func(t *testing.T) {
 		in := Config{
+			ServiceTitan: ServiceTitan{
+				AppID:        "app",
+				TenantID:     "ten",
+				ClientID:     "id",
+				ClientSecret: "secret",
+			},
+			Geckoboard: Geckoboard{
+				APIKey: "api123",
+			},
+			Entries: Entries{
+				{
+					Dataset: Dataset{
+						RequiredFields: []string{"Name"},
+					},
+					Report: Report{
+						ID:         "rpt-1",
+						CategoryID: "cat-1",
+					},
+				},
+			},
+		}
+
+		assert.NilError(t, in.Validate())
+	})
+
+	t.Run("returns no error with valid config", func(t *testing.T) {
+		in := Config{
+			TimeLocation: "America/New_York",
 			ServiceTitan: ServiceTitan{
 				AppID:        "app",
 				TenantID:     "ten",
