@@ -1,6 +1,14 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/exp/slices"
+)
+
+// These map to existing servicetitan types and adds the percentage
+// Other types might be added in the future as required
+var validReportFieldTypes = []string{"Date", "Number", "Boolean", "String", "Percentage"}
 
 type Report struct {
 	ID         string      `yaml:"id"`
@@ -9,9 +17,10 @@ type Report struct {
 }
 
 type Dataset struct {
-	Name           string   `yaml:"name"`
-	Type           string   `yaml:"type"`
-	RequiredFields []string `yaml:"required_fields"`
+	Name           string        `yaml:"name"`
+	Type           string        `yaml:"type"`
+	RequiredFields []string      `yaml:"required_fields"`
+	FieldOverrides []ReportField `yaml:"field_overrides"`
 }
 
 type Entries []Entry
@@ -19,6 +28,13 @@ type Entries []Entry
 type Entry struct {
 	Report  Report  `yaml:"report"`
 	Dataset Dataset `yaml:"dataset"`
+}
+
+// ReportField allows overriding a field type of a report.
+// Such as mapping a Number type to percentage
+type ReportField struct {
+	Name string `yaml:"name"`
+	Type string `yaml:"type"`
 }
 
 type Parameter struct {
@@ -54,6 +70,13 @@ func (d Dataset) validate() []string {
 
 	if len(d.RequiredFields) == 0 {
 		msgs = append(msgs, "at least one dataset required_field is required, please use the report field name as the identifier")
+	}
+
+	for _, f := range d.FieldOverrides {
+		if !slices.Contains(validReportFieldTypes, f.Type) {
+			msg := fmt.Sprintf("field override %q type is invalid only %q are valid types", f.Name, validReportFieldTypes)
+			msgs = append(msgs, msg)
+		}
 	}
 
 	return msgs

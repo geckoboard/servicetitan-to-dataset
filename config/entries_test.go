@@ -45,6 +45,41 @@ func TestEntries_Validate(t *testing.T) {
 		assert.DeepEqual(t, in.Validate(), want, cmp.AllowUnexported(Error{}))
 	})
 
+	t.Run("returns field override type errors", func(t *testing.T) {
+		want := Error{
+			scope: "entries[1]",
+			messages: []string{
+				`field override "Col2" type is invalid only ["Date" "Number" "Boolean" "String" "Percentage"] are valid types`,
+				`field override "Col3" type is invalid only ["Date" "Number" "Boolean" "String" "Percentage"] are valid types`,
+			},
+		}
+
+		in := Entries{{
+			Report: Report{
+				ID:         "rpt1",
+				CategoryID: "cat1",
+			},
+			Dataset: Dataset{
+				RequiredFields: []string{"Name"},
+				FieldOverrides: []ReportField{
+					{
+						Name: "Col1",
+						Type: "Percentage",
+					},
+					{
+						Name: "Col2",
+						Type: "percent",
+					},
+					{
+						Name: "Col3",
+						Type: "",
+					},
+				},
+			},
+		}}
+		assert.DeepEqual(t, in.Validate(), want, cmp.AllowUnexported(Error{}))
+	})
+
 	t.Run("returns error for later entry", func(t *testing.T) {
 		want := Error{
 			scope: "entries[3]",
