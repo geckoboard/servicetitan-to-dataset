@@ -3,20 +3,14 @@ package processor
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"servicetitan-to-dataset/config"
 	"servicetitan-to-dataset/dataset"
 	"servicetitan-to-dataset/servicetitan"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jnormington/geckoboard"
 )
-
-const dateFormat = "2006-01-02"
-
-var nowSubRegexp = regexp.MustCompile(`NOW(\-|\+)(\d+)`)
 
 type ReportProcessor struct {
 	maxDatasetRecords int
@@ -25,6 +19,7 @@ type ReportProcessor struct {
 
 	serviceTitanClient *servicetitan.Client
 	geckoboardClient   *geckoboard.Client
+	keywordReplacer    KeywordReplacer
 }
 
 func New(cfg *config.Config) ReportProcessor {
@@ -36,7 +31,7 @@ func New(cfg *config.Config) ReportProcessor {
 		config:             cfg,
 		serviceTitanClient: c,
 		geckoboardClient:   gb,
-		timeNow:            time.Now,
+		keywordReplacer:    NewKeywordHandler(cfg.TimeLoc()),
 	}
 }
 
@@ -113,26 +108,13 @@ func (r *ReportProcessor) buildReportParameters(report *servicetitan.Report, ent
 
 		value := p.Value
 
-		if param.DataType == "Date" && p.Value == "NOW" {
-			value = r.timeNow().Format(dateFormat)
-		}
+		if param.DataType == "Date" {
+			val, _ := value.(string)
+			r.keywordReplacer.SetValue(val)
 
-		val, _ := value.(string)
-		if param.DataType == "Date" && nowSubRegexp.MatchString(val) {
-			matches := nowSubRegexp.FindStringSubmatch(val)
-
-			if len(matches) == 3 {
-				parsedNum, _ := strconv.Atoi(matches[2])
-				days := time.Duration(parsedNum*24) * time.Hour
-
-				switch matches[1] {
-				case "-":
-					value = r.timeNow().Add(-days).Format(dateFormat)
-				case "+":
-					value = r.timeNow().Add(days).Format(dateFormat)
-				}
+			if r.keywordReplacer.HasMatched() {
+				value = r.keywordReplacer.ComputedValue()
 			}
-
 		}
 
 		params = append(params, servicetitan.DataRequestParamters{Name: p.Name, Value: value})

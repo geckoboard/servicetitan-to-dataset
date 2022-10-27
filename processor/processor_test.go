@@ -215,7 +215,7 @@ func TestProcessor_Processor(t *testing.T) {
 	})
 
 	t.Run("dynamic date parameter value", func(t *testing.T) {
-		t.Run("replaces NOW with the current date and NOW-1 with yesterday", func(t *testing.T) {
+		t.Run("replaces NOW with computed values", func(t *testing.T) {
 			var calledReportData bool
 			proc, rs, _ := buildProcessorWithMocks()
 
@@ -253,72 +253,14 @@ func TestProcessor_Processor(t *testing.T) {
 			assert.Assert(t, calledReportData)
 		})
 
-		t.Run("doesnt replace NOW when the parameter type is not a date", func(t *testing.T) {
-			var calledReportData bool
-			proc, rs, _ := buildProcessorWithMocks()
-
-			rs.getReportDataFn = func(got servicetitan.ReportDataRequest, gotPagination *servicetitan.PaginationOptions) (*servicetitan.ReportData, error) {
-				assert.DeepEqual(t, got.Parameters, []servicetitan.DataRequestParamters{{Name: "Username", Value: "NOW"}})
-				calledReportData = true
-
-				return &servicetitan.ReportData{
-					Data:   []interface{}{},
-					Fields: []servicetitan.ReportField{},
-				}, nil
-			}
-
-			err := proc.Process(context.Background(), config.Entry{
-				Report: config.Report{
-					Parameters: []config.Parameter{
-						{
-							Name:  "Username",
-							Value: "NOW",
-						},
-					},
-				},
-			})
-
-			assert.NilError(t, err)
-			assert.Assert(t, calledReportData)
-		})
-
-		t.Run("doesnt replace NOW- when incomplete", func(t *testing.T) {
-			var calledReportData bool
-			proc, rs, _ := buildProcessorWithMocks()
-
-			rs.getReportDataFn = func(got servicetitan.ReportDataRequest, gotPagination *servicetitan.PaginationOptions) (*servicetitan.ReportData, error) {
-				assert.DeepEqual(t, got.Parameters, []servicetitan.DataRequestParamters{{Name: "From", Value: "NOW-"}})
-				calledReportData = true
-
-				return &servicetitan.ReportData{
-					Data:   []interface{}{},
-					Fields: []servicetitan.ReportField{},
-				}, nil
-			}
-
-			err := proc.Process(context.Background(), config.Entry{
-				Report: config.Report{
-					Parameters: []config.Parameter{
-						{
-							Name:  "From",
-							Value: "NOW-",
-						},
-					},
-				},
-			})
-
-			assert.NilError(t, err)
-			assert.Assert(t, calledReportData)
-		})
-
-		t.Run("replaces NOW+1 when today +1 day", func(t *testing.T) {
+		t.Run("replaces CURRENT_MONTH_DAY1 with computed value", func(t *testing.T) {
 			var calledReportData bool
 			proc, rs, _ := buildProcessorWithMocks()
 
 			rs.getReportDataFn = func(got servicetitan.ReportDataRequest, gotPagination *servicetitan.PaginationOptions) (*servicetitan.ReportData, error) {
 				assert.DeepEqual(t, got.Parameters, []servicetitan.DataRequestParamters{
-					{Name: "From", Value: "2022-06-08"},
-					{Name: "To", Value: "2022-06-09"},
+					{Name: "From", Value: "2022-06-01"},
+					{Name: "To", Value: "2022-06-07"},
 				})
 				calledReportData = true
 
@@ -335,11 +277,11 @@ func TestProcessor_Processor(t *testing.T) {
 					Parameters: []config.Parameter{
 						{
 							Name:  "From",
-							Value: "NOW+1",
+							Value: "CURRENT_MONTH_DAY1",
 						},
 						{
 							Name:  "To",
-							Value: "NOW+2",
+							Value: "NOW",
 						},
 					},
 				},
@@ -434,11 +376,23 @@ func buildProcessorWithMocks() (ReportProcessor, *mockReportService, *mockDatase
 		Geckoboard:   config.Geckoboard{},
 	})
 
-	proc.timeNow = func() time.Time {
-		return time.Date(2022, 6, 7, 8, 11, 0, 0, time.UTC)
-	}
 	proc.serviceTitanClient.ReportService = reportSrv
 	proc.geckoboardClient.DatasetService = datasetSrv
+
+	kh := proc.keywordReplacer.(*KeywordHandler)
+	now := time.Date(2022, 6, 7, 8, 11, 0, 0, time.UTC)
+
+	for idx := range kh.replacers {
+		r := kh.replacers[idx]
+
+		switch val := r.(type) {
+		case *NowReplacer:
+			val.timeWrapper = mockTimeWrapper{now: now}
+		case *CurrentMonthDayReplacer:
+			val.timeWrapper = mockTimeWrapper{now: now}
+		}
+
+	}
 
 	return proc, reportSrv, datasetSrv
 }
