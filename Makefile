@@ -2,7 +2,7 @@ BUILD_DIR=bin
 BUILD_NAME=servicetitan-to-dataset
 BUILD_PREFIX=${BUILD_DIR}/${BUILD_NAME}
 
-VERSION=0.1.0
+VERSION=0.2.0
 LDFLAGS="-X servicetitan-to-dataset/cmd.version=$(VERSION)"
 
 build:
