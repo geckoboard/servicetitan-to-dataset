@@ -189,16 +189,36 @@ dataset:
 
 #### Dynamic date parameters
 
-If you're report requires a date parameter, you can hardcode a specific date such as 2022-10-19 however do so would require
-the configuration to be updated every day.
+If you're report requires a date parameter, you can hardcode a specific date such as 2022-10-19 (today) however you would need update
+the configuration every day.
 
-To support a dynamic date value - you can use NOW - which for a date parameter will translate to the current date.
-Also for cases that require a range e.g a from and to range. There is also a NOW-2 or NOW+2 which minus or plus n days
+To support a dynamic date value - you can use one of the following - the report param type must be type of Date
+
+| Keyword            | Description |
+| -------------------|-------------|
+| NOW                | Replaces with today date 
+| NOW-1              | Replaces with yesterday date
+| NOW+1              | Replaces with tomorrow date (should never require this)  
+| CURRENT_MONTH_DAY1 | Replaces with the 1st of the current month to allow reporting for the current month progress
+
+Please note that by default it uses the time from your machine to determine "TODAY", if this is being run on a server
+running in UTC time - you can specify the time_location at the top of the config and specify a time location local to you.
+Refer to the time_location section of the readme for more info
+
+##### Examples
 
 ```yml
   parameters:
     - name: From
       value: "NOW-1"
+    - name: To
+      value: "NOW"
+```
+
+```yml
+  parameters:
+    - name: From
+      value: "CURRENT_MONTH_DAY1"
     - name: To
       value: "NOW"
 ```
@@ -228,3 +248,19 @@ geckoboard:
   api_key: "{{GB_APIKEY}}"
 ```
 
+#### Time location
+
+By default when using magic date keywords - it uses the current time of the machine that the binary is run on.
+However in some cases, the binary might be run on a server running in UTC, for cases like this your might want to change what "TODAY" means when the time locations differs from UTC greatly.
+
+The time location should be one of the values under the TZ Database name column [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+
+```yaml
+time_location: America/New_York
+geckoboard:
+ ...
+servicetitan:
+ ...
+entries:
+ ...
+```
