@@ -123,7 +123,15 @@ func (d *DatasetBuilder) isOptionalField(field servicetitan.ReportField) bool {
 }
 
 func (d *DatasetBuilder) datasetFieldType(field servicetitan.ReportField) geckoboard.FieldType {
-	switch field.Type {
+	var fieldType = field.Type
+
+	// If a field override exists use that field type
+	// to return the specific dataset field type
+	if ovf := d.fieldOverride(field); ovf != nil {
+		fieldType = ovf.Type
+	}
+
+	switch fieldType {
 	case "String":
 		return geckoboard.StringType
 	case "Number":
@@ -132,9 +140,24 @@ func (d *DatasetBuilder) datasetFieldType(field servicetitan.ReportField) geckob
 		return geckoboard.StringType
 	case "Date":
 		return geckoboard.DateType
+	case "Percentage":
+		// Although this is a fake type override - it seems that
+		// percentage fields are already a decimal from 0 to 1
+		// so we don't need to do any additional conversion
+		return geckoboard.PercentType
 	}
 
 	// TODO: Not sure if "Time" is a datetime or just the time ignore for now until required
 
 	return "unknown"
+}
+
+func (d *DatasetBuilder) fieldOverride(field servicetitan.ReportField) *config.ReportField {
+	for _, f := range d.datasetOverrides.FieldOverrides {
+		if f.Name == field.Name {
+			return &f
+		}
+	}
+
+	return nil
 }

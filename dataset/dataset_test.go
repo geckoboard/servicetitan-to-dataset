@@ -32,10 +32,11 @@ func TestDatasetBuilder_BuildSchema(t *testing.T) {
 		want := &geckoboard.Dataset{
 			Name: "report_a",
 			Fields: map[string]geckoboard.Field{
-				"active":         {Type: "string", Optional: true, Name: "Active"},
-				"completed_on":   {Type: "date", Optional: true, Name: "Completed date"},
-				"name":           {Type: "string", Name: "Name"},
-				"number_of_jobs": {Type: "number", Optional: true, Name: "Completed Jobs"},
+				"active":          {Type: "string", Optional: true, Name: "Active"},
+				"completed_on":    {Type: "date", Optional: true, Name: "Completed date"},
+				"name":            {Type: "string", Name: "Name"},
+				"number_of_jobs":  {Type: "number", Optional: true, Name: "Completed Jobs"},
+				"completion_rate": {Type: "percentage", Name: "Completion rate", Optional: true}, // type override in config
 			},
 			UniqueBy: []string{"name"},
 		}
@@ -87,22 +88,25 @@ func TestDatasetBuilder_BuildData(t *testing.T) {
 
 		assert.DeepEqual(t, got, geckoboard.Data{
 			map[string]interface{}{
-				"active":         "TRUE",
-				"completed_on":   "2021-10-13",
-				"name":           "John Smith",
-				"number_of_jobs": 5,
+				"active":          "TRUE",
+				"completed_on":    "2021-10-13",
+				"name":            "John Smith",
+				"number_of_jobs":  5,
+				"completion_rate": 0.12,
 			},
 			map[string]interface{}{
-				"active":         "TRUE",
-				"completed_on":   "2021-10-13",
-				"name":           "Jane Doe",
-				"number_of_jobs": 9,
+				"active":          "TRUE",
+				"completed_on":    "2021-10-13",
+				"name":            "Jane Doe",
+				"number_of_jobs":  9,
+				"completion_rate": 0.24,
 			},
 			map[string]interface{}{
-				"active":         "FALSE",
-				"completed_on":   "2021-10-13",
-				"name":           "Hilary",
-				"number_of_jobs": 15,
+				"active":          "FALSE",
+				"completed_on":    "2021-10-13",
+				"name":            "Hilary",
+				"number_of_jobs":  15,
+				"completion_rate": 0.87,
 			},
 		})
 	})
@@ -118,6 +122,7 @@ func buildConfig() BuilderConfig {
 				{Name: "Number of jobs", Label: "Completed Jobs", Type: "Number"},
 				{Name: "Active", Label: "Active", Type: "Boolean"},
 				{Name: "Completed on", Label: "Completed date", Type: "Date"},
+				{Name: "Completion rate", Label: "Completion rate", Type: "Number"},
 			},
 			Parameters: []servicetitan.ReportParameter{
 				{Name: "From", Label: "From", DataType: "Date", IsRequired: true},
@@ -131,15 +136,16 @@ func buildConfig() BuilderConfig {
 		},
 		Data: &servicetitan.ReportData{
 			Data: []interface{}{
-				[]interface{}{"John Smith", 5, true, "2021-10-13"},
-				[]interface{}{"Jane Doe", 9, true, "2021-10-13"},
-				[]interface{}{"Hilary", 15, false, "2021-10-13"},
+				[]interface{}{"John Smith", 5, true, "2021-10-13", 0.12},
+				[]interface{}{"Jane Doe", 9, true, "2021-10-13", 0.24},
+				[]interface{}{"Hilary", 15, false, "2021-10-13", 0.87},
 			},
 			Fields: []servicetitan.ReportField{
 				{Name: "Name", Label: "Name", Type: "String"},
 				{Name: "Number of jobs", Label: "Completed Jobs", Type: "Number"},
 				{Name: "Active", Label: "Active", Type: "Boolean"},
 				{Name: "Completed on", Label: "Completed date", Type: "Date"},
+				{Name: "Completion rate", Label: "Completion rate", Type: "Number"},
 			},
 			HasMore:  false,
 			Page:     1,
@@ -147,6 +153,12 @@ func buildConfig() BuilderConfig {
 		},
 		DatasetOverrides: config.Dataset{
 			RequiredFields: []string{"Name"},
+			FieldOverrides: []config.ReportField{
+				{
+					Name: "Completion rate",
+					Type: "Percentage",
+				},
+			},
 		},
 	}
 }
