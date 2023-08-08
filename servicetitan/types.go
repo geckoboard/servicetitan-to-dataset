@@ -53,11 +53,16 @@ type ReportField struct {
 }
 
 type ReportParameter struct {
-	Name       string `json:"name"`
-	Label      string `json:"label"`
-	DataType   string `json:"dataType"`
-	IsArray    bool   `json:"isArray"`
-	IsRequired bool   `json:"isRequired"`
+	Name           string       `json:"name"`
+	Label          string       `json:"label"`
+	DataType       string       `json:"dataType"`
+	IsArray        bool         `json:"isArray"`
+	IsRequired     bool         `json:"isRequired"`
+	AcceptedValues AcceptValues `json:"acceptValues"`
+}
+
+type AcceptValues struct {
+	Values [][]string `json:"values"`
 }
 
 type ReportData struct {

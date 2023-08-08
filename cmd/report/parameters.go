@@ -63,19 +63,25 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 
 	paramTable := tablewriter.NewWriter(os.Stdout)
 	paramTable.SetRowLine(true)
-	paramTable.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?"})
+	paramTable.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?", "Accepted Values"})
 
 	fieldTable := tablewriter.NewWriter(os.Stdout)
 	fieldTable.SetRowLine(true)
 	fieldTable.SetHeader([]string{"Field Name", "Label", "Type"})
 
 	for _, param := range report.Parameters {
+		valuesStr := ""
+		for _, group := range param.AcceptedValues.Values {
+			valuesStr += group[1] + " - " + group[0] + "\n"
+		}
+
 		paramTable.Append([]string{
 			param.Name,
 			param.Label,
 			param.DataType,
 			strings.ToUpper(strconv.FormatBool(param.IsArray)),
 			strings.ToUpper(strconv.FormatBool(param.IsRequired)),
+			valuesStr,
 		})
 	}
 
