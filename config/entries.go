@@ -8,7 +8,7 @@ import (
 
 // These map to existing servicetitan types and adds the percentage
 // Other types might be added in the future as required
-var validReportFieldTypes = []string{"Date", "Number", "Boolean", "String", "Percentage"}
+var validReportFieldTypes = []string{"Date", "Datetime", "Number", "Boolean", "String", "Percentage"}
 
 type Report struct {
 	ID         string      `yaml:"id"`

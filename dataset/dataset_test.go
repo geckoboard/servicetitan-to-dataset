@@ -37,6 +37,7 @@ func TestDatasetBuilder_BuildSchema(t *testing.T) {
 				"name":            {Type: "string", Name: "Name"},
 				"number_of_jobs":  {Type: "number", Optional: true, Name: "Completed Jobs"},
 				"completion_rate": {Type: "percentage", Name: "Completion rate", Optional: true}, // type override in config
+				"created_on":      {Type: "datetime", Optional: true, Name: "Created on"},
 			},
 			UniqueBy: []string{"name"},
 		}
@@ -93,6 +94,7 @@ func TestDatasetBuilder_BuildData(t *testing.T) {
 				"name":            "John Smith",
 				"number_of_jobs":  5,
 				"completion_rate": 0.12,
+				"created_on":      "2023-10-13T00:00:00-05:00",
 			},
 			map[string]interface{}{
 				"active":          "TRUE",
@@ -100,6 +102,7 @@ func TestDatasetBuilder_BuildData(t *testing.T) {
 				"name":            "Jane Doe",
 				"number_of_jobs":  9,
 				"completion_rate": 0.24,
+				"created_on":      "2023-10-13T00:00:00-05:00Z",
 			},
 			map[string]interface{}{
 				"active":          "FALSE",
@@ -107,6 +110,7 @@ func TestDatasetBuilder_BuildData(t *testing.T) {
 				"name":            "Hilary",
 				"number_of_jobs":  15,
 				"completion_rate": 0.87,
+				"created_on":      "2023-10-13T00:00:00-05:00",
 			},
 		})
 	})
@@ -123,6 +127,7 @@ func buildConfig() BuilderConfig {
 				{Name: "Active", Label: "Active", Type: "Boolean"},
 				{Name: "Completed on", Label: "Completed date", Type: "Date"},
 				{Name: "Completion rate", Label: "Completion rate", Type: "Number"},
+				{Name: "Created on", Label: "Created on", Type: "Datetime"},
 			},
 			Parameters: []servicetitan.ReportParameter{
 				{Name: "From", Label: "From", DataType: "Date", IsRequired: true},
@@ -136,9 +141,9 @@ func buildConfig() BuilderConfig {
 		},
 		Data: &servicetitan.ReportData{
 			Data: []interface{}{
-				[]interface{}{"John Smith", 5, true, "2021-10-13", 0.12},
-				[]interface{}{"Jane Doe", 9, true, "2021-10-13", 0.24},
-				[]interface{}{"Hilary", 15, false, "2021-10-13", 0.87},
+				[]interface{}{"John Smith", 5, true, "2021-10-13", 0.12, "2023-10-13T00:00:00-05:00"},
+				[]interface{}{"Jane Doe", 9, true, "2021-10-13", 0.24, "2023-10-13T00:00:00-05:00Z"},
+				[]interface{}{"Hilary", 15, false, "2021-10-13", 0.87, "2023-10-13T00:00:00-05:00"},
 			},
 			Fields: []servicetitan.ReportField{
 				{Name: "Name", Label: "Name", Type: "String"},
@@ -146,6 +151,7 @@ func buildConfig() BuilderConfig {
 				{Name: "Active", Label: "Active", Type: "Boolean"},
 				{Name: "Completed on", Label: "Completed date", Type: "Date"},
 				{Name: "Completion rate", Label: "Completion rate", Type: "Number"},
+				{Name: "Created on", Label: "Created on", Type: "Datetime"},
 			},
 			HasMore:  false,
 			Page:     1,
@@ -157,6 +163,10 @@ func buildConfig() BuilderConfig {
 				{
 					Name: "Completion rate",
 					Type: "Percentage",
+				},
+				{
+					Name: "Created on",
+					Type: "Datetime",
 				},
 			},
 		},

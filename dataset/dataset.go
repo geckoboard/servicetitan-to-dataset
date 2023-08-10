@@ -139,8 +139,8 @@ func (d *DatasetBuilder) datasetFieldType(field servicetitan.ReportField) geckob
 	case "Boolean":
 		return geckoboard.StringType
 	case "Date":
-		// Looks like all Date fields from ServiceTitan
-		// are in Geckoboard's DateTime format
+		return geckoboard.DateType
+	case "Datetime":
 		return geckoboard.DatetimeType
 	case "Percentage":
 		// Although this is a fake type override - it seems that
