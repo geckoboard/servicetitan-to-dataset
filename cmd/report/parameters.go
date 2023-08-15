@@ -63,19 +63,36 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 
 	paramTable := tablewriter.NewWriter(os.Stdout)
 	paramTable.SetRowLine(true)
-	paramTable.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?"})
+	paramTable.SetHeader([]string{"Paramter name", "Label", "Data type", "Array?", "Required?", "Accepted Values"})
 
 	fieldTable := tablewriter.NewWriter(os.Stdout)
 	fieldTable.SetRowLine(true)
 	fieldTable.SetHeader([]string{"Field Name", "Label", "Type"})
 
 	for _, param := range report.Parameters {
+		args := []string{}
+
+		for _, group := range param.AcceptedValues.Values {
+			switch len(group) {
+			case 0:
+				// Skip if there is none
+			case 1:
+				args = append(args, group[0])
+			case 2:
+				args = append(args, group[1]+" - "+group[0])
+			default:
+				fmt.Printf("Warning: Unexpected number of items (%d) in group for param %s.", len(group), param.Name)
+				args = append(args, "Warning: Unexpected data format.")
+			}
+		}
+
 		paramTable.Append([]string{
 			param.Name,
 			param.Label,
 			param.DataType,
 			strings.ToUpper(strconv.FormatBool(param.IsArray)),
 			strings.ToUpper(strconv.FormatBool(param.IsRequired)),
+			strings.Join(args, "\n"),
 		})
 	}
 
