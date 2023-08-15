@@ -86,15 +86,13 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 			}
 		}
 
-		valuesStr := strings.Join(args, "\n")
-
 		paramTable.Append([]string{
 			param.Name,
 			param.Label,
 			param.DataType,
 			strings.ToUpper(strconv.FormatBool(param.IsArray)),
 			strings.ToUpper(strconv.FormatBool(param.IsRequired)),
-			valuesStr,
+			strings.Join(args, "\n"),
 		})
 	}
 
