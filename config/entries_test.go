@@ -49,8 +49,8 @@ func TestEntries_Validate(t *testing.T) {
 		want := Error{
 			scope: "entries[1]",
 			messages: []string{
-				`field override "Col2" type is invalid only ["Date" "Number" "Boolean" "String" "Percentage"] are valid types`,
-				`field override "Col3" type is invalid only ["Date" "Number" "Boolean" "String" "Percentage"] are valid types`,
+				`field override "Col2" type is invalid only ["Date" "Datetime" "Number" "Boolean" "String" "Percentage"] are valid types`,
+				`field override "Col3" type is invalid only ["Date" "Datetime" "Number" "Boolean" "String" "Percentage"] are valid types`,
 			},
 		}
 
