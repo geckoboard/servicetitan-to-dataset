@@ -70,10 +70,23 @@ func fetchAndDisplayParameters(cfg config.ServiceTitan, categoryID, reportID str
 	fieldTable.SetHeader([]string{"Field Name", "Label", "Type"})
 
 	for _, param := range report.Parameters {
-		valuesStr := ""
+		args := []string{}
+
 		for _, group := range param.AcceptedValues.Values {
-			valuesStr += group[1] + " - " + group[0] + "\n"
+			switch len(group) {
+			case 0:
+				// Skip if there is none
+			case 1:
+				args = append(args, group[0])
+			case 2:
+				args = append(args, group[1]+" - "+group[0])
+			default:
+				fmt.Printf("Warning: Unexpected number of items (%d) in group for param %s.", len(group), param.Name)
+				args = append(args, "Warning: Unexpected data format.")
+			}
 		}
+
+		valuesStr := strings.Join(args, "\n")
 
 		paramTable.Append([]string{
 			param.Name,
