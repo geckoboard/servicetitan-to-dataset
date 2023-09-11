@@ -16,7 +16,7 @@ var (
 	datasetNameRegexp = regexp.MustCompile(`[^0-9a-z._\- ]+`)
 )
 
-const MaxStringLength = 256
+const maxFieldValueByteLength = 256
 
 type BuilderConfig struct {
 	Report           *servicetitan.Report
@@ -77,10 +77,8 @@ func (d *DatasetBuilder) BuildData() geckoboard.Data {
 
 				switch nval := val.(type) {
 				case string:
-					if len(nval) > MaxStringLength {
-						// Support single and multi-byte chars
-						runeSlice := []rune(nval)
-						nval = string(runeSlice[:MaxStringLength])
+					if len(nval) > maxFieldValueByteLength {
+						nval = nval[:maxFieldValueByteLength]
 					}
 					gr[name] = nval
 				case bool:
