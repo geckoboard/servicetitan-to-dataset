@@ -75,6 +75,12 @@ func (d *DatasetBuilder) BuildData() geckoboard.Data {
 
 				switch nval := val.(type) {
 				case string:
+					// Geckoboard datasets string fields only support 256 chars
+					if len(nval) > 256 {
+						// Support single and multi-byte chars
+						runeSlice := []rune(nval)
+						nval = string(runeSlice[:250])
+					}
 					gr[name] = nval
 				case bool:
 					gr[name] = strings.ToUpper(strconv.FormatBool(nval))
