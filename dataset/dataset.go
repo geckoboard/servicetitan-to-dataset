@@ -16,6 +16,8 @@ var (
 	datasetNameRegexp = regexp.MustCompile(`[^0-9a-z._\- ]+`)
 )
 
+const maxFieldValueByteLength = 256
+
 type BuilderConfig struct {
 	Report           *servicetitan.Report
 	Data             *servicetitan.ReportData
@@ -75,6 +77,9 @@ func (d *DatasetBuilder) BuildData() geckoboard.Data {
 
 				switch nval := val.(type) {
 				case string:
+					if len(nval) > maxFieldValueByteLength {
+						nval = nval[:maxFieldValueByteLength]
+					}
 					gr[name] = nval
 				case bool:
 					gr[name] = strings.ToUpper(strconv.FormatBool(nval))
